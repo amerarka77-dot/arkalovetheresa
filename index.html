@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valentine For Theresa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --pink: #ff6b81; --dark-red: #d32f2f; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: #fff0f3; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .hidden { display: none !important; }
+        
+        /* Overlay Awal */
+        #welcome-screen { position: fixed; inset: 0; background: var(--pink); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        
+        .container { max-width: 500px; width: 95%; padding: 20px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--pink); text-align: center; position: relative; }
+
+        /* Game Box */
+        #game-box { width: 100%; height: 350px; background: #87CEEB; position: relative; overflow: hidden; border-radius: 10px; border: 3px solid #444; margin: 10px 0; }
+        #p1 { width: 45px; height: 45px; background: url('image_7.png') no-repeat center/contain; position: absolute; z-index: 10; bottom: 100px; left: 30px; }
+        #p2 { width: 50px; height: 50px; background: url('image_1.png') no-repeat center/contain; position: absolute; bottom: 45px; right: 15px; }
+        .platform { position: absolute; background: #654321; border-top: 4px solid #228B22; }
+        .lava { position: absolute; bottom: 0; width: 100%; height: 15px; background: linear-gradient(to top, red, orange); }
+
+        /* Mobile Controls */
+        .controls { display: flex; justify-content: space-around; margin-top: 10px; gap: 10px; }
+        .ctrl-btn { width: 60px; height: 60px; background: #fff; border: 2px solid var(--pink); border-radius: 50%; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; touch-action: manipulation; }
+        .ctrl-btn:active { background: var(--pink); color: white; }
+        .jump-btn { width: 100px; border-radius: 30px; }
+
+        /* Container Gambar */
+        .img-container { width: 100%; height: 280px; display: flex; justify-content: center; align-items: center; background: #fafafa; border-radius: 10px; overflow: hidden; border: 2px solid var(--pink); margin-bottom: 15px; }
+        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* Tombol Umum */
+        .btn { padding: 12px 25px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; font-family: 'Poppins'; transition: 0.2s; }
+        .btn-main { background: var(--pink); color: white; }
+        .btn-run { position: absolute; background: #ddd; color: #333; z-index: 100; white-space: nowrap; }
+
+        /* Kado */
+        .gift { background: var(--pink); border: 3px solid var(--dark-red); margin: 20px auto; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; position: relative; font-size: 2rem; }
+        .gift::after { content: ''; position: absolute; background: var(--dark-red); width: 100%; height: 15%; }
+        .gift::before { content: ''; position: absolute; background: var(--dark-red); width: 15%; height: 100%; }
+        @keyframes shake { 0% { transform: rotate(0); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } 100% { transform: rotate(0); } }
+        .shake { animation: shake 0.1s infinite; }
+    </style>
+</head>
+<body>
+
+    <audio id="lagu" src="musik.mp3" preload="auto" loop></audio>
+
+    <div id="welcome-screen">
+        <h1 style="font-family: 'Dancing Script'; font-size: 3rem; margin-bottom: 20px;">Halo Theresa ❤️</h1>
+        <button class="btn btn-main" style="font-size: 1.2rem;" onclick="bukaGame()">Mulai Sekarang ✨</button>
+    </div>
+
+    <div id="main-content" class="container hidden">
+        <div id="section-game">
+            <h3 style="font-family: 'Dancing Script';">Capai P2 untuk dapet kado!</h3>
+            <div id="game-box">
+                <div id="p1"></div>
+                <div id="p2"></div>
+                <div class="platform" style="width: 150px; height: 50px; bottom: 0; left: 0;"></div>
+                <div class="platform" style="width: 120px; height: 20px; bottom: 110px; left: 180px;"></div>
+                <div class="platform" style="width: 120px; height: 20px; bottom: 200px; left: 340px;"></div>
+                <div class="platform" style="width: 120px; height: 50px; bottom: 0; right: 0;"></div>
+                <div class="lava"></div>
+            </div>
+            <div class="controls">
+                <div class="ctrl-btn" onmousedown="handleKey('ArrowLeft', true)" onmouseup="handleKey('ArrowLeft', false)" ontouchstart="handleKey('ArrowLeft', true)" ontouchend="handleKey('ArrowLeft', false)">⬅️</div>
+                <div class="ctrl-btn jump-btn" onmousedown="handleKey(' ', true)" onmouseup="handleKey(' ', false)" ontouchstart="handleKey(' ', true)" ontouchend="handleKey(' ', false)">LOMPAT</div>
+                <div class="ctrl-btn" onmousedown="handleKey('ArrowRight', true)" onmouseup="handleKey('ArrowRight', false)" ontouchstart="handleKey('ArrowRight', true)" ontouchend="handleKey('ArrowRight', false)">➡️</div>
+            </div>
+        </div>
+
+        <div id="modal-gagal" class="hidden" style="min-height: 200px; padding-top: 20px;">
+            <h3>Yah, jatuh... 🥺</h3>
+            <p>Tapi tetep sayang aku kan?</p>
+            <button class="btn btn-main" onclick="keKado()">Sayang Banget! ❤️</button>
+            <button id="run-1" class="btn btn-run" onmouseover="lari(this)" ontouchstart="lari(this)">Nggak</button>
+        </div>
+
+        <div id="section-kado" class="hidden">
+            <h2>Horee! Klik kado kamu 🎁</h2>
+            <div id="g1" class="gift" style="width:100px; height:100px;" onclick="bukaKado(1)">?</div>
+            <div id="g2" class="gift hidden" style="width:80px; height:80px;" onclick="bukaKado(2)">?</div>
+            <div id="g3" class="gift hidden" style="width:60px; height:60px;" onclick="bukaKado(3)">?</div>
+        </div>
+
+        <div id="section-foto" class="hidden">
+            <div id="s1" class="slide">
+                <div class="img-container"><img src="image_4.jpeg"></div>
+                <p>"Ini tuh itungannya fotbar pertama kita kann, AHAHAHAHAHA. Jujur aku pas liat ini jadi sadar, seberapa besar rasa kagum dan sayang sama kamu dari sebelum kita deket, kehalang gengsi ajaa, tapi overall ini salah satu kesukaanku siekk"</p>
+                <button class="btn btn-main" onclick="nextSlide(1)">Lanjut ✨</button>
+            </div>
+            <div id="s2" class="slide hidden">
+                <div class="img-container"><img src="image_5.jpeg"></div>
+                <p>"First date kita, foto yang kayaknya bakal selalu bikin aku senyum sendiri kayak orang gila pas liat, kamu cantik banget yaa pas disitu(sekarang jugaa siekk). Habisin waktu bareng kamu ternyata indah dan ga kerasa lama, kangenn bangettt "</p>
+                <button class="btn btn-main" onclick="nextSlide(2)">Lanjut ✨</button>
+            </div>
+            <div id="s3" class="slide hidden">
+                <div class="img-container"><img src="image_3.jpeg"></div>
+                <p style="font-size: 0.8rem; font-style: italic; color: var(--dark-red); padding: 0 10px;">"Dulu tuh, pas liat kamu aku selalu natap kamu dengan mata yang berbinar dan berharap bisa mlikin kamu, untungnya terwujud, Yeyyeyeye, makasi yaa buat 8 bulan waktu yang udah kita habisin, i always love youu Theresaa, be my future and always hold my hand yaaa💕"</p>
+                <button class="btn btn-main" onclick="tanyaWaktu()">Lanjut ✨</button>
+            </div>
+        </div>
+
+        <div id="section-tanya" class="hidden" style="min-height: 200px; padding-top: 20px;">
+            <h3>Jadi mau luangin waktu buat berdua sama aku?</h3>
+            <button class="btn btn-main" onclick="mau()">MAU! ❤️</button>
+            <button id="run-2" class="btn btn-run" onmouseover="lari(this)" ontouchstart="lari(this)">Nggak</button>
+        </div>
+
+        <div id="section-tanggal" class="hidden">
+            <h3>KAPAN SAYANGG? 💕</h3>
+            <input type="date" id="tgl" style="padding: 10px; border-radius: 10px; border: 2px solid var(--pink);"><br><br>
+            <button class="btn btn-main" onclick="keFinal()">Kirim Kabar!</button>
+        </div>
+
+        <div id="section-final" class="hidden">
+            <h1 style="color: var(--pink); font-size: 1.2rem; margin-bottom: 5px;">YEYEYEYEYY, MAKASII SAYANGGG ❤️</h1>
+            <h2 style="font-family: 'Dancing Script'; color: var(--pink); margin-top: 0;">I Love You Theresa!</h2>
+            <div class="img-container"><img id="gif-final" src="image_0.jpeg"></div>
+        </div>
+    </div>
+
+    <script>
+        const p1 = document.getElementById('p1');
+        const box = document.getElementById('game-box');
+        const plats = document.querySelectorAll('.platform');
+        const lagu = document.getElementById('lagu');
+        
+        let x = 30, y = 100, vy = 0, keys = {}, loop;
+        let gameAktif = false;
+
+        function bukaGame() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('main-content').classList.remove('hidden');
+            lagu.play().then(() => { lagu.pause(); }).catch(e => {});
+            gameAktif = true;
+            gameLoop();
+        }
+
+        // Fungsi bantu untuk kontrol mobile
+        function handleKey(key, state) {
+            keys[key] = state;
+        }
+
+        function gameLoop() {
+            if (!gameAktif) return;
+            vy += 0.8; 
+            y -= vy;
+
+            if (keys['ArrowRight']) x += 5;
+            if (keys['ArrowLeft']) x -= 5;
+            if (keys[' '] && p1.onGround) { vy = -13; p1.onGround = false; }
+            
+            p1.onGround = false;
+            plats.forEach(p => {
+                let r = p.getBoundingClientRect();
+                let br = box.getBoundingClientRect();
+                let pTop = br.bottom - r.top;
+                let pLeft = r.left - br.left;
+                let pRight = pLeft + r.width;
+
+                if (y <= pTop && y + vy >= pTop && x + 30 > pLeft && x < pRight) {
+                    y = pTop; vy = 0; p1.onGround = true;
+                }
+            });
+
+            if (y < 5) { 
+                gameAktif = false; 
+                document.getElementById('section-game').classList.add('hidden'); 
+                document.getElementById('modal-gagal').classList.remove('hidden'); 
+            }
+            if (x > 450 && y > 30) { gameAktif = false; keKado(); }
+
+            p1.style.left = x + 'px'; 
+            p1.style.bottom = y + 'px';
+            loop = requestAnimationFrame(gameLoop);
+        }
+
+        window.onkeydown = e => keys[e.key] = true;
+        window.onkeyup = e => keys[e.key] = false;
+
+        function lari(btn) {
+            btn.style.left = Math.random() * 70 + 10 + '%';
+            btn.style.top = Math.random() * 60 + 20 + '%';
+        }
+
+        function keKado() {
+            lagu.currentTime = 0;
+            lagu.play();
+            document.getElementById('modal-gagal').classList.add('hidden');
+            document.getElementById('section-game').classList.add('hidden');
+            document.getElementById('section-kado').classList.remove('hidden');
+        }
+
+        function bukaKado(n) {
+            const g = document.getElementById('g'+n);
+            g.classList.add('shake');
+            setTimeout(() => {
+                g.classList.add('hidden');
+                if(n < 3) document.getElementById('g'+(n+1)).classList.remove('hidden');
+                else { 
+                    document.getElementById('section-kado').classList.add('hidden'); 
+                    document.getElementById('section-foto').classList.remove('hidden'); 
+                }
+            }, 800);
+        }
+
+        function nextSlide(n) {
+            document.getElementById('s'+n).classList.add('hidden');
+            document.getElementById('s'+(n+1)).classList.remove('hidden');
+        }
+
+        function tanyaWaktu() { 
+            document.getElementById('section-foto').classList.add('hidden'); 
+            document.getElementById('section-tanya').classList.remove('hidden'); 
+        }
+
+        function mau() { 
+            document.getElementById('section-tanya').classList.add('hidden'); 
+            document.getElementById('section-tanggal').classList.remove('hidden'); 
+        }
+        
+        function keFinal() {
+            if(!document.getElementById('tgl').value) return alert("Pilih tanggalnya dulu sayang!");
+            document.getElementById('section-tanggal').classList.add('hidden');
+            document.getElementById('section-final').classList.remove('hidden');
+            const g = document.getElementById('gif-final');
+            const f = ['image_0.jpeg', 'image_2.jpeg', 'image_4.jpeg', 'image_5.jpeg', 'image_3.jpeg'];
+            let i = 0;
+            setInterval(() => { i = (i + 1) % f.length; g.src = f[i]; }, 1000);
+        }
+    </script>
+</body>
+</html>
